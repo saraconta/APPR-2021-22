@@ -5,6 +5,9 @@ library(tidyr)
 library(tmap)
 library(shiny)
 library(readr)
+library(tidyverse)
+library(stringr)
+library(readxl)
 
 ## test
 

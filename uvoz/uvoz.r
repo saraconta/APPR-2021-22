@@ -1,9 +1,5 @@
 # 2. faza: Uvoz podatkov
 
-library(tidyverse)
-library(readr)
-library(stringr)
-library(readxl)
 
 sl <- locale("sl", decimal_mark=",", grouping_mark=".")
 
@@ -136,9 +132,17 @@ nesrece1[nesrece1=="Notranjsko-kraška"] <- "Primorsko-notranjska"
 vozila1 <- pivot_longer(vozila,
                         cols = colnames(vozila)[-1],
                         names_to = "leto",
-                        values_to = "stevilo-vozil"
+                        values_to = "stevilo.vozil"
 ) %>% 
   rename("obcina"="OBČINE")
+vozila1[vozila1=="Dobrovnik/Dobronak"] <- "Dobrovnik"
+vozila1[vozila1=="Hodoš/Hodos"] <- "Hodoš"
+vozila1[vozila1=="Lendava/Lendva"] <- "Lendava"
+vozila1[vozila1=="Ankaran/Ancarano"] <- "Ankaran"
+vozila1[vozila1=="Izola/Isola"] <- "Izola"
+vozila1[vozila1=="Koper/Capodistria"] <- "Koper"
+vozila1[vozila1=="Piran/Pirano"] <- "Piran"
+vozila1[vozila1=="Šentjur"] <- "Šentjur Pri Celju"
 
 vozila1$leto <- as.numeric(vozila1$leto)
 
@@ -421,8 +425,8 @@ nesrece_udelezenci_2020 <- nesrece_udelezenci_2020[-nrow(nesrece_udelezenci_2020
 
 nesrece_udelezenci_2020$leto <- 2020
 
-nesrece_udelezenci_2019 <- nesrece_udelezenci_2019 %>% 
-  add_row(regija="SLOVENIJA", stevilo.poskodovanih=sum(nesrece_udelezenci_2019$stevilo.poskodovanih), leto=2019) # dodala stolpec zaradi left joina
+nesrece_udelezenci_2020 <- nesrece_udelezenci_2020 %>% 
+  add_row(regija="SLOVENIJA", stevilo.poskodovanih=sum(nesrece_udelezenci_2020$stevilo.poskodovanih), leto=2020) # dodala stolpec zaradi left joina
 
 #-------------------------------------------------------------------------------
 # 2. Združevanje tabel
@@ -432,6 +436,8 @@ nesrece_udelezenci_2019 <- nesrece_udelezenci_2019 %>%
 vozila2 <- vozila1 %>% 
   left_join(obcine.regije, by="obcina") %>% 
   select(-1) %>% 
+  group_by(leto, regija) %>% 
+  summarise(stevilo.vozil=sum(stevilo.vozil)) %>% 
   arrange("leto", "regija", "stevilo-vozil")
 
 #-------------------------------------------------------------------------------
@@ -453,7 +459,8 @@ nesrece2 <- nesrece1 %>%
   rbind(nesrece_2016) %>% 
   rbind(nesrece_2017) %>% 
   rbind(nesrece_2018) %>% 
-  rbind(nesrece_2019) %>% rbind(nesrece_2020)
+  rbind(nesrece_2019) %>% 
+  rbind(nesrece_2020)
 
 #-------------------------------------------------------------------------------
 # Združitev vseh novonastalih tabel in tabele o prebivalstvu:
@@ -467,7 +474,9 @@ tabela <- prebivalstvo1 %>%
   select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec) %>% 
   left_join(vozila2, by="regija") %>% 
   filter(leto.x == leto.y) %>%
-  select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec, "stevilo.vozil"="stevilo-vozil")
+  select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec, stevilo.vozil)
 
+#-------------------------------------------------------------------------------
+# Shranjevanje tabele v datoteko:
 
-
+tabela %>% write.csv("tabela.csv")
