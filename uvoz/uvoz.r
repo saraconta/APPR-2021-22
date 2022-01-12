@@ -479,4 +479,4 @@ tabela <- prebivalstvo1 %>%
 #-------------------------------------------------------------------------------
 # Shranjevanje tabele v datoteko:
 
-tabela %>% write.csv("tabela.csv")
+tabela %>% write.csv("podatki/tabela.csv")

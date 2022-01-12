@@ -8,6 +8,11 @@ library(readr)
 library(tidyverse)
 library(stringr)
 library(readxl)
+library(ggplot2)
+library(sp)
+library(rgdal)
+library(rgeos)
+library(raster)
 
 ## test
 

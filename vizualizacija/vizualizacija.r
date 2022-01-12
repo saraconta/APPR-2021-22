@@ -5,7 +5,7 @@ library(tidyverse)
 library(ggplot2)
 
 tabela = read_csv(
-  "tabela.csv",
+  "podatki/tabela.csv",
   locale = locale(encoding = "Windows-1250"),
   col_types = cols(
     .default = col_guess(),
@@ -40,7 +40,7 @@ tabela1.graf2 <- tabela1 %>% filter(leto == zadnje.leto)
 
 # Graf števila nesreč na 10.000 prebivalcev v letu 2007
 
-ggplot(tabela1.graf1, mapping = aes(x = reorder(regija, -st.nesrec.na.10000.preb), y = st.nesrec.na.10000.preb)) +
+graf.nesrece.2007 <- ggplot(tabela1.graf1, mapping = aes(x = reorder(regija, -st.nesrec.na.10000.preb), y = st.nesrec.na.10000.preb)) +
   geom_bar(stat = "identity") + 
   xlab("Regija") + ylab("Število nesreč na 10.000 prebivalcev") +
   ggtitle("Nesreče leta 2007") + 
@@ -57,7 +57,7 @@ ggplot(tabela1.graf1, mapping = aes(x = reorder(regija, -st.nesrec.na.10000.preb
 
 # Graf števila nesreč na 10.000 prebivalcev v letu 2020
 
-ggplot(tabela1.graf2, mapping = aes(x = reorder(regija, -st.nesrec.na.10000.preb), y = st.nesrec.na.10000.preb)) +
+graf.nesrece.2020 <- ggplot(tabela1.graf2, mapping = aes(x = reorder(regija, -st.nesrec.na.10000.preb), y = st.nesrec.na.10000.preb)) +
   geom_bar(stat = "identity") + 
   xlab("Regija") + ylab("Število nesreč na 10.000 prebivalcev") +
   ggtitle("Nesreče leta 2020") + 
@@ -73,7 +73,7 @@ ggplot(tabela1.graf2, mapping = aes(x = reorder(regija, -st.nesrec.na.10000.preb
 
 # Graf poškodovanih po letih, ločeno po regijah (brez Slovenije)
 
-tabela1 %>% filter(regija != "SLOVENIJA") %>%
+graf.poskodovani <- tabela1 %>% filter(regija != "SLOVENIJA") %>%
   ggplot(
     mapping = aes(x = leto, y = st.poskodovanih.na.10000.preb, color = regija)
   ) +
@@ -88,7 +88,7 @@ tabela1 %>% filter(regija != "SLOVENIJA") %>%
 
 # Grafi po regijah za število nesreč na 1.000 vozil
 
-ggplot(tabela1) + 
+graf.nesrece.vozila <- ggplot(tabela1) + 
   aes(x = leto, y = st.nesrec.na.1000.vozil) + 
   geom_col() + 
   facet_wrap(. ~ regija)
@@ -96,13 +96,14 @@ ggplot(tabela1) +
 
 # Graf nesrec na vozilo v odvisnosti od nesrec na prebivalca, za regiji mojega doma in regijo fakultete
 
-ggplot(tabela1 %>% filter(regija %in% c("Osrednjeslovenska", "Jugovzhodna Slovenija", "Posavska"))) + 
+graf.nesrece.preb.vozila <- ggplot(tabela1 %>% filter(regija %in% c("Osrednjeslovenska", "Jugovzhodna Slovenija", "Posavska"))) + 
   aes(x = st.nesrec.na.1000.vozil, y = st.nesrec.na.10000.preb, color = leto, shape = regija) + 
   geom_point()
 #-------------------------------------------------------------------------------
 
 # Indeks rasti nesreč za Osrednjeslovensko regijo
-ggplot(tabela1 %>% filter(regija == "Osrednjeslovenska") %>% select(leto, indeks.rasti.nesrec)) + 
+
+graf.indeks1 <- ggplot(tabela1 %>% filter(regija == "Osrednjeslovenska") %>% select(leto, indeks.rasti.nesrec)) + 
   aes(x = leto, y = indeks.rasti.nesrec) + 
   geom_line() + 
   xlab("Leto") + ylab("Indeks") + 
@@ -110,7 +111,8 @@ ggplot(tabela1 %>% filter(regija == "Osrednjeslovenska") %>% select(leto, indeks
   theme_light()
 
 # Indeks rasti nesreč za Slovenijo
-ggplot(tabela1 %>% filter(regija == "SLOVENIJA") %>% select(leto, indeks.rasti.nesrec)) + 
+
+graf.indeks2 <- ggplot(tabela1 %>% filter(regija == "SLOVENIJA") %>% select(leto, indeks.rasti.nesrec)) + 
   aes(x = leto, y = indeks.rasti.nesrec) + 
   geom_line() + 
   xlab("Leto") + ylab("Indeks") + 
@@ -120,21 +122,21 @@ ggplot(tabela1 %>% filter(regija == "SLOVENIJA") %>% select(leto, indeks.rasti.n
 
 # Graf kvantilov za število nesreč
   
-  ggplot(tabela1 %>% mutate(leto = as.character(leto))) + # Dodala mutate, ker leto ni 'character'
+graf.kvantili.nesrece <- ggplot(tabela1 %>% mutate(leto = as.character(leto))) + # Dodala mutate, ker leto ni 'character'
   aes(x = leto, y = stevilo.nesrec) + 
   geom_boxplot()
 #-------------------------------------------------------------------------------
 
 # Graf kvantilov za število poškodovanih
 
-ggplot(tabela1 %>% mutate(leto = as.character(leto))) + # Dodala mutate, ker leto ni 'character'
+graf.kvantili.poskodovani <- ggplot(tabela1 %>% mutate(leto = as.character(leto))) + # Dodala mutate, ker leto ni 'character'
   aes(x = leto, y = stevilo.poskodovanih) + 
   geom_boxplot()
 #-------------------------------------------------------------------------------
 
 # Graf števila nesreč po letih, barvno ločeno po regijah
 
-tabela1 %>%
+graf.nesrece.skupaj <- tabela1 %>%
   group_by(leto) %>%
   filter(regija != "SLOVENIJA") %>%
   ggplot(
@@ -155,104 +157,102 @@ library(raster)
 library(tmap)
 #-------------------------------------------------------------------------------
 
-# Zemljevid slovenskih statističnih regij
+# Uvoz zemljevida
 
-slo.regije.sp <- readOGR("zemljevidi/si/gadm36_SVN_1.shp")
+source("lib/uvozi.zemljevid.r")
 
-slo.regije.map <- slo.regije.sp %>% spTransform(CRS("+proj=longlat +datum=WGS84"))
-
-slo.regije.poligoni <- fortify(slo.regije.map)
-
-slo.regije.poligoni <- slo.regije.poligoni %>%
-  left_join(
-    rownames_to_column(slo.regije.map@data),
-    by = c("id" = "rowname")
-  ) %>%
-  select(
-    regija = NAME_1, long, lat, order, hole, piece, id, group
-  ) %>%
-  mutate(
-    regija = replace(regija, regija == "Notranjsko-kraška", "Primorsko-notranjska"),
-    regija = replace(regija, regija == "Spodnjeposavska", "Posavska")
-  )
-slo.regije.poligoni %>% write_csv("zemljevidi/si/regije-poligoni.csv")
-
-slo.regije.centroidi <- slo.regije.map %>% coordinates %>% as.data.frame
-colnames(slo.regije.centroidi) <- c("long", "lat")
-
-slo.regije.centroidi <- slo.regije.centroidi %>% rownames_to_column() %>%
-  left_join(
-    rownames_to_column(slo.regije.map@data),
-    by = "rowname"
-  ) %>%
-  select(
-    regija = NAME_1, long, lat
-  ) %>%
-  mutate(
-    regija = replace(regija, regija == "Notranjsko-kraška", "Primorsko-notranjska"),
-    regija = replace(regija, regija == "Spodnjeposavska", "Posavska")
-  )
-slo.regije.centroidi %>% write_csv("zemljevidi/si/regije-centroidi.csv")
-#-------------------------------------------------------------------------------
-
-# Prikaže le meje med regijami in njihova imena
-
-slo.regije.poligoni %>% ggplot() +
-  geom_polygon(
-    mapping = aes(long, lat, group = group),
-    color = "grey",
-    fill = "white"
-  ) +
-  coord_map() +
-  geom_text(
-    data = slo.regije.centroidi,
-    mapping = aes(x = long, y = lat, label = regija),
-    size = 3
-  ) +
-  theme_classic() +
-  theme(
-    axis.line = element_blank(),
-    axis.ticks = element_blank(),
-    axis.text = element_blank(),
-    axis.title = element_blank()
-  )
+Slovenija <- uvozi.zemljevid("http://biogeo.ucdavis.edu/data/gadm2.8/shp/SVN_adm_shp.zip",
+                             "SVN_adm1", encoding="UTF-8") %>% fortify()
+colnames(Slovenija)[12]<-'regija'  #preimenujemo stolpec
+Slovenija$regija <- gsub('Notranjsko-kraška', 'Primorsko-notranjska', Slovenija$regija)
+Slovenija$regija <- gsub('Spodnjeposavska', 'Posavska', Slovenija$regija)
 #-------------------------------------------------------------------------------
 
 # Prostorska vizualizacija podatkov o prometnih nesrečah
+## Zemljevid nesreč po slovenskih statističnih regijah, leto 2020
 
-slo.regije.poligoni <- read_csv("zemljevidi/si/regije-poligoni-vr.csv")
+tabela.za.zemljevid <- filter(tabela1, leto==2020) %>% select(regija, leto, stevilo.nesrec)
 
-slo.regije.centroidi <- read_csv("zemljevidi/si/regije-centroidi-vr.csv")
+zemljevid.nesrec1 <- ggplot() +
+  geom_polygon(data = right_join(tabela.za.zemljevid, Slovenija, by = "regija"),
+               aes(x = long, y = lat, group = group, fill = stevilo.nesrec))+
+  ggtitle("Število nesreč po regijah \n za leto 2020") + 
+  theme(axis.title=element_blank(), axis.text=element_blank(), 
+        axis.ticks=element_blank(), panel.background = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_gradient(low = '#FCDADA', high='#970303') +
+  labs(fill="Število po regijah") +
+  geom_path(data = right_join(tabela.za.zemljevid, Slovenija,
+                              by = "regija"), aes(x = long, y = lat, 
+                                                             group = group), 
+            color = "white", size = 0.1)
 
-# Zemljevid nesreč po regijah za leto 2020
-graf.regije.nesrece.zemljevid <- tabela1 %>%
-  filter(leto == zadnje.leto) %>%
-  select(regija, st.nesrec.na.10000.preb) %>%
-  filter(regija != "SLOVENIJA") %>%
-  left_join(
-    slo.regije.poligoni,
-    by = "regija"
-  ) %>%
-  ggplot() +
-  geom_polygon(
-    mapping = aes(long, lat, group = group, fill = st.nesrec.na.10000.preb),
-    color = "grey"
-  ) +
-  coord_map() +
-  scale_fill_binned() +
-  theme_classic() +
-  theme(
-    axis.line = element_blank(),
-    axis.ticks = element_blank(),
-    axis.text = element_blank(),
-    axis.title = element_blank()
-  )
+#-------------------------------------------------------------------------------
 
-graf.regije.nesrece.zemljevid + 
-  ggsave("regije-nesrece-mapa.pdf", dev = cairo_pdf, width = 9, height = 6) # Shranila zemljevid v datoteko
+##Zemljevid nesreč po slovenskih statističnih regijah, leto 2007
 
+tabela.za.zemljevid1 <- filter(tabela1, leto==2007) %>% select(regija, leto, st.nesrec.na.10000.preb)
 
+zemljevid.nesrec2 <- ggplot() +
+  geom_polygon(data = right_join(tabela.za.zemljevid1, Slovenija, by = "regija"),
+               aes(x = long, y = lat, group = group, fill = st.nesrec.na.10000.preb))+
+  ggtitle("Število nesreč po regijah \n za leto 2007") + 
+  theme(axis.title=element_blank(), axis.text=element_blank(), 
+        axis.ticks=element_blank(), panel.background = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_gradient(low = 'lightpink1', high='indianred4') +
+  labs(fill="Število po regijah") +
+  geom_path(data = right_join(tabela.za.zemljevid1, Slovenija,
+                              by = "regija"), aes(x = long, y = lat, 
+                                                  group = group), 
+            color = "white", size = 0.1)
+#-------------------------------------------------------------------------------
 
+##Zemljevid poškodovanih po slovenskih statističnih regijah, leto 2010
 
+tabela.za.zemljevid2 <- filter(tabela1, leto==2010) %>% select(regija, leto, st.poskodovanih.na.10000.preb)
 
+zemljevid.poskodovanih <- ggplot() +
+  geom_polygon(data = right_join(tabela.za.zemljevid2, Slovenija, by = "regija"),
+               aes(x = long, y = lat, group = group, fill = st.poskodovanih.na.10000.preb))+
+  ggtitle("Število poškodovanih po regijah \n za leto 2010") + 
+  theme(axis.title=element_blank(), axis.text=element_blank(), 
+        axis.ticks=element_blank(), panel.background = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_gradient(low = 'lightblue2', high='navyblue') +
+  labs(fill="Število po regijah") +
+  geom_path(data = right_join(tabela.za.zemljevid2, Slovenija,
+                              by = "regija"), aes(x = long, y = lat, 
+                                                  group = group), 
+            color = "white", size = 0.1)
+
+#-------------------------------------------------------------------------------
+
+##Zemljevid indeksa prometnih nesreč po slovenskih statističnih regijah, leto 2019
+
+tabela.za.zemljevid3 <- filter(tabela1, leto==2019) %>% select(regija, leto, indeks.rasti.nesrec)
+
+zemljevid.indeksa.nesrec <- ggplot() +
+  geom_polygon(data = right_join(tabela.za.zemljevid3, Slovenija, by = "regija"),
+               aes(x = long, y = lat, group = group, fill = indeks.rasti.nesrec))+
+  ggtitle("Indeks nesreč po regijah \n za leto 2019") + 
+  theme(axis.title=element_blank(), axis.text=element_blank(), 
+        axis.ticks=element_blank(), panel.background = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_fill_gradient(low = 'skyblue2', high='maroon4') +
+  labs(fill="Indeks") +
+  geom_path(data = right_join(tabela.za.zemljevid3, Slovenija,
+                              by = "regija"), aes(x = long, y = lat, 
+                                                  group = group), 
+            color = "white", size = 0.1)
+
+#-------------------------------------------------------------------------------
+
+# Pretvorba zemljevidov v datoteke
+
+zemljevid.nesrec1 + 
+  ggsave(filename = "regije-nesrece-mapa.pdf", dev = "pdf", width = 9, height = 6) # Shranila zemljevid v datoteko
+
+zemljevid.nesrec2 + 
+  ggsave(filename = "regije-nesrece-na-10000-preb-mapa.pdf", dev = "pdf", width = 9, height = 6) # Shranila zemljevid v datoteko
 
