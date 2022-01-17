@@ -59,5 +59,3 @@ diagram.kolena = function(k.visina) {
     ylab("razdalja pri združevanju skupin") +
     theme_classic()
 }
-
-diagram.kolena(r)

@@ -246,13 +246,3 @@ zemljevid.indeksa.nesrec <- ggplot() +
                                                   group = group), 
             color = "white", size = 0.1)
 
-#-------------------------------------------------------------------------------
-
-# Pretvorba zemljevidov v datoteke
-
-zemljevid.nesrec1 + 
-  ggsave(filename = "regije-nesrece-mapa.pdf", dev = "pdf", width = 9, height = 6) # Shranila zemljevid v datoteko
-
-zemljevid.nesrec2 + 
-  ggsave(filename = "regije-nesrece-na-10000-preb-mapa.pdf", dev = "pdf", width = 9, height = 6) # Shranila zemljevid v datoteko
-
