@@ -6,6 +6,7 @@ library(raster)
 library(rgeos)
 library(tidyverse)
 library(cluster)
+library(ggalt)
 
 source("lib/obrisi.r")
 source("lib/hc.kolena.R")
@@ -20,22 +21,30 @@ tabela = read_csv(
   "podatki/tabela.csv",
   locale = locale(encoding = "Windows-1250"),
   col_types = cols(
-    .default = col_guess(),
-    regija = col_factor()
+    .default = col_guess()
   )
-) %>% select(-1)
+) %>% dplyr::select(-1)
 
-tabela1 <- tabela %>% mutate(st.poskodovanih.na.10000.preb = stevilo.poskodovanih / prebivalci * 10000, 
+tabela <- tabela %>% mutate(st.poskodovanih.na.10000.preb = stevilo.poskodovanih / prebivalci * 10000, 
                              st.nesrec.na.10000.preb = stevilo.nesrec / prebivalci * 10000, 
                              st.nesrec.na.1000.vozil = stevilo.nesrec / stevilo.vozil * 1000)
 
-tabela1 <- tabela1 %>% 
+tabela1 <- tabela %>% 
+  filter(regija != "SLOVENIJA", leto != 2007) %>%
+  mutate(
+    indeks.rasti.nesrec = stevilo.nesrec - lag(stevilo.nesrec), 
+    indeks.rasti.poskodovanih = stevilo.poskodovanih - lag(stevilo.poskodovanih)
+  )
+tabela1$regija <- as.factor(tabela1$regija)
+
+tabela2 <- tabela %>% 
   filter(regija != "SLOVENIJA", leto == 2019) %>%
   mutate(
     indeks.rasti.nesrec = stevilo.nesrec - lag(stevilo.nesrec), 
     indeks.rasti.poskodovanih = stevilo.poskodovanih - lag(stevilo.poskodovanih)
   ) %>%
-  select(regija, st.nesrec.na.10000.preb)
+  dplyr::select(regija, st.nesrec.na.10000.preb)
+tabela2$regija <- as.factor(tabela2$regija)
 
 source("lib/uvozi.zemljevid.r")
 
@@ -46,11 +55,20 @@ Slovenija$NAME_1 <- gsub('Spodnjeposavska', 'Posavska', Slovenija$NAME_1)
 
 ################################################################################
 
+# Linearna regresija
+
+g <- ggplot(tabela1, aes(x=stevilo.nesrec, y=stevilo.vozil)) + geom_point()
+print(g)
+
+lin.regresija <- g + geom_smooth(method="lm", formula = y ~ x)
+
+################################################################################
+
 # Metoda voditeljev
 
-tabela1.norm <- tabela1 %>% select(-regija) %>% scale()
-rownames(tabela1.norm) <- tabela1$regija
-k <- kmeans(tabela1.norm, 3, nstart = 1000)
+tabela2.norm <- tabela2 %>% dplyr::select(-regija) %>% scale()
+rownames(tabela2.norm) <- tabela2$regija
+k <- kmeans(tabela2.norm, 3, nstart = 1000)
 
 head(k$cluster, n=12)
 table(k$cluster)
@@ -58,6 +76,90 @@ table(k$cluster)
 k$tot.withinss
 
 library(tmap)
-skupine <- data.frame(regija=tabela1$regija, skupina=factor(k$cluster))
-zemljevid <- tm_shape(merge(Slovenija, skupine, by.x="NAME_1", by.y="regija")) + tm_polygons("skupina")
-tmap_mode("view")
+skupine <- data.frame(regija=tabela2$regija, skupina=factor(k$cluster))
+
+# Skupine za regije:
+# Pomurska                  2
+# Podravska                 1
+# Koroška                   2
+# Savinjska                 1
+# Zasavska                  3
+# Posavska                  3
+# Jugovzhodna Slovenija     2
+# Osrednjeslovenska         1
+# Gorenjska                 1
+# Primorsko-notranjska      2
+# Goriška                   2
+# Obalno-kraška             1
+
+################################################################################
+# Metoda iz predavanj
+
+regije <- tabela2[, 1] %>% unlist()
+razdalje <- tabela2[, -1] %>% dist()
+dendrogram <- razdalje %>% hclust(method = "ward.D")
+
+# Dendrogram razdalj med regijami glede na podatke o številu nesreč
+
+plot(
+  dendrogram,
+  labels = regije,
+  xlab = "regija",
+  ylab = "višina",
+  main = "Wardova razdalja med regijami"
+)
+
+# Metoda voditeljev
+
+skupine2 = tabela2[, -1] %>%
+  kmeans(centers = 3) %>%
+  getElement("cluster") %>%
+  as.ordered()
+
+r.hc <- tabela2[, -1] %>% obrisi(hc = TRUE)
+
+# Kolena
+
+dendrogram %>%
+  hc.kolena() %>%
+  diagram.kolena()
+# Kolena : 2, 3, 4, 6, 8
+
+# Obrisi
+
+regije.x.y <-
+  as_tibble(razdalje %>% cmdscale(k = 2)) %>%
+  bind_cols(regije) %>%
+  dplyr::select(regija = ...3, x = V1, y = V2)
+
+# Razdelimo regije na 4 skupine
+
+k <- obrisi.k(r.hc)
+skupine2 <- tabela2[, -1] %>%
+  dist() %>%
+  hclust(method = "ward.D") %>%
+  cutree(k = k) %>%
+  as.ordered()
+diagram.skupine(regije.x.y, regije.x.y$regija, skupine2, k)
+
+# Razdelimo regije na 3 skupine
+
+set.seed(20) # ponovljivost rezultatov
+skupine2 <- tabela2[, -1] %>%
+  kmeans(centers = 3) %>%
+  getElement("cluster") %>%
+  as.ordered()
+skupina.treh <- diagram.skupine(regije.x.y, regije.x.y$regija, skupine2, k)
+
+# Narišemo zemljevid
+
+tabela2$regija <- as.character(tabela2$regija)
+skupine <- data.frame(regija=tabela2$regija, skupina=factor(k$cluster))
+
+map.data <- right_join(skupine, Slovenija, by = c("regija", "NAME_1"))
+zemljevid.napredna.analiza <- ggplot(map.data) + 
+  geom_polygon(aes(x = long, y = lat, group = group, fill = skupina)) +
+  geom_path(aes(x = long, y = lat, group = group), 
+            color = "white", size = 0.1) +
+  labs(fill="Skupine regij", title="Gručenje regij s podobnimi lastnostmi") +
+  scale_fill_brewer(palette="Paired")

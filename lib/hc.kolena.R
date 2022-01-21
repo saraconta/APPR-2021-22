@@ -29,7 +29,7 @@ hc.kolena = function(dendrogram, od = 1, do = NULL, eps = 0.5) {
 hc.kolena.k = function(k.visina) {
   k.visina %>%
     filter(koleno) %>%
-    select(k) %>%
+    dplyr::select(k) %>%
     unlist() %>%
     as.character() %>%
     as.integer()

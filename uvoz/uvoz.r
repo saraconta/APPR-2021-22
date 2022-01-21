@@ -120,7 +120,7 @@ nesrece1 <- pivot_longer(nesrece,
   ) %>% 
   filter(vrsta=="SKUPAJ") %>% 
   replace("SKUPAJ", "skupaj") %>% 
-  select(regija, leto, stevilo.nesrec)
+  dplyr::select(regija, leto, stevilo.nesrec)
 
 nesrece1[nesrece1=="Spodnjeposavska"] <- "Posavska"
 
@@ -161,7 +161,7 @@ nesrece_udelezenci1 <- pivot_longer(nesrece.udelezenci,
     regex = "^(\\d{4})\\s[A-zčšžČŠŽ]+\\s[A-zčŠŽčšž]+\\s+-*\\s*+[sz]*\\s*(.*)$"
   ) %>% 
   filter(poskodba=="SKUPAJ") %>%
-  select(regija, leto, stevilo.poskodovanih)
+  dplyr::select(regija, leto, stevilo.poskodovanih)
 
 nesrece_udelezenci1[nesrece_udelezenci1=="Spodnjeposavska"] <- "Posavska"  # v ostalih tabelah zapisana drugače
 
@@ -171,7 +171,7 @@ nesrece_udelezenci1[nesrece_udelezenci1=="Notranjsko-kraška"] <- "Primorsko-not
 # tabele nesreč med leti 2015 in 2020:
 
 nesrece_2015 <- nesrece.2015 %>% 
-  select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
+  dplyr::select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
   rename("stevilka-nesrece"="ZaporednaStevilkaPN", "vrsta"="KlasifikacijaNesrece", "obcina"="UpravnaEnotaStoritve") %>% 
   mutate(vrsta=tolower(vrsta), obcina=str_to_title(obcina)) %>%
   left_join(obcine.regije1, by="obcina")
@@ -180,7 +180,7 @@ nesrece_2015$stevilo.nesrec <- 1
 
 nesrece_2015 <- nesrece_2015 %>% 
   distinct() %>% 
-  select(regija, stevilo.nesrec) %>% 
+  dplyr::select(regija, stevilo.nesrec) %>% 
   group_by(regija) %>% 
   summarise(stevilo.nesrec=sum(stevilo.nesrec))
 
@@ -193,7 +193,7 @@ nesrece_2015 <- nesrece_2015 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_2016 <- nesrece.2016 %>% 
-  select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
+  dplyr::select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
   rename("stevilka-nesrece"="ZaporednaStevilkaPN", "vrsta"="KlasifikacijaNesrece", "obcina"="UpravnaEnotaStoritve") %>% 
   mutate(vrsta=tolower(vrsta), obcina=str_to_title(obcina)) %>%
   left_join(obcine.regije1, by="obcina")
@@ -202,7 +202,7 @@ nesrece_2016$stevilo.nesrec <- 1
 
 nesrece_2016 <- nesrece_2016 %>% 
   distinct() %>% 
-  select(regija, stevilo.nesrec) %>% 
+  dplyr::select(regija, stevilo.nesrec) %>% 
   group_by(regija) %>% 
   summarise(stevilo.nesrec=sum(stevilo.nesrec))
 
@@ -215,7 +215,7 @@ nesrece_2016 <- nesrece_2016 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_2017 <- nesrece.2017 %>% 
-  select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
+  dplyr::select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
   rename("stevilka-nesrece"="ZaporednaStevilkaPN", "vrsta"="KlasifikacijaNesrece", "obcina"="UpravnaEnotaStoritve") %>% 
   mutate(vrsta=tolower(vrsta), obcina=str_to_title(obcina)) %>%
   left_join(obcine.regije1, by="obcina")
@@ -224,7 +224,7 @@ nesrece_2017$stevilo.nesrec <- 1
 
 nesrece_2017 <- nesrece_2017 %>% 
   distinct() %>% 
-  select(regija, stevilo.nesrec) %>% 
+  dplyr::select(regija, stevilo.nesrec) %>% 
   group_by(regija) %>% 
   summarise(stevilo.nesrec=sum(stevilo.nesrec))
 
@@ -237,7 +237,7 @@ nesrece_2017 <- nesrece_2017 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_2018 <- nesrece.2018 %>% 
-  select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
+  dplyr::select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
   rename("stevilka-nesrece"="ZaporednaStevilkaPN", "vrsta"="KlasifikacijaNesrece", "obcina"="UpravnaEnotaStoritve") %>% 
   mutate(vrsta=tolower(vrsta), obcina=str_to_title(obcina)) %>%
   left_join(obcine.regije1, by="obcina")
@@ -246,7 +246,7 @@ nesrece_2018$stevilo.nesrec <- 1
 
 nesrece_2018 <- nesrece_2018 %>% 
   distinct() %>% 
-  select(regija, stevilo.nesrec) %>% 
+  dplyr::select(regija, stevilo.nesrec) %>% 
   group_by(regija) %>% 
   summarise(stevilo.nesrec=sum(stevilo.nesrec))
 
@@ -259,7 +259,7 @@ nesrece_2018 <- nesrece_2018 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_2019 <- nesrece.2019 %>% 
-  select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
+  dplyr::select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
   rename("stevilka-nesrece"="ZaporednaStevilkaPN", "vrsta"="KlasifikacijaNesrece", "obcina"="UpravnaEnotaStoritve") %>% 
   mutate(vrsta=tolower(vrsta), obcina=str_to_title(obcina)) %>%
   left_join(obcine.regije1, by="obcina")
@@ -268,7 +268,7 @@ nesrece_2019$stevilo.nesrec <- 1
 
 nesrece_2019 <- nesrece_2019 %>% 
   distinct() %>% 
-  select(regija, stevilo.nesrec) %>% 
+  dplyr::select(regija, stevilo.nesrec) %>% 
   group_by(regija) %>% 
   summarise(stevilo.nesrec=sum(stevilo.nesrec))
 
@@ -281,7 +281,7 @@ nesrece_2019 <- nesrece_2019 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_2020 <- nesrece.2020 %>% 
-  select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
+  dplyr::select(ZaporednaStevilkaPN, KlasifikacijaNesrece, UpravnaEnotaStoritve) %>%
   rename("stevilka-nesrece"="ZaporednaStevilkaPN", "vrsta"="KlasifikacijaNesrece", "obcina"="UpravnaEnotaStoritve") %>% 
   mutate(vrsta=tolower(vrsta), obcina=str_to_title(obcina)) %>%
   left_join(obcine.regije1, by="obcina")
@@ -289,7 +289,7 @@ nesrece_2020 <- nesrece.2020 %>%
 nesrece_2020$stevilo.nesrec <- 1
 
 nesrece_2020 <- nesrece_2020 %>% 
-  distinct() %>% select(regija, stevilo.nesrec) %>% 
+  distinct() %>% dplyr::select(regija, stevilo.nesrec) %>% 
   group_by(regija) %>% 
   summarise(stevilo.nesrec=sum(stevilo.nesrec))
 
@@ -304,7 +304,7 @@ nesrece_2020 <- nesrece_2020 %>%
 # tabele udeležencev med leti 2015 in 2020:
 
 nesrece_udelezenci_2015 <- nesrece.2015 %>% 
-  select(UpravnaEnotaStoritve) %>%
+  dplyr::select(UpravnaEnotaStoritve) %>%
   rename("obcina"="UpravnaEnotaStoritve") %>% 
   mutate(obcina=str_to_title(obcina)) # občine spremenila v male tiskane z veliko začetnico, poškodbe pa v male tiskane
 
@@ -312,7 +312,7 @@ nesrece_udelezenci_2015$stevilo.poskodovanih <- 1
 
 nesrece_udelezenci_2015 <- nesrece_udelezenci_2015 %>% 
   left_join(obcine.regije1, by="obcina") %>% 
-  select(stevilo.poskodovanih, regija) %>%
+  dplyr::select(stevilo.poskodovanih, regija) %>%
   group_by(regija) %>% 
   summarise(stevilo.poskodovanih=sum(stevilo.poskodovanih))
 
@@ -325,7 +325,7 @@ nesrece_udelezenci_2015 <- nesrece_udelezenci_2015 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_udelezenci_2016 <- nesrece.2016 %>% 
-  select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
+  dplyr::select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
   rename("obcina"="UpravnaEnotaStoritve", "poskodba"="PoskodbaUdelezenca") %>% 
   mutate(poskodba=tolower(poskodba), obcina=str_to_title(obcina))
 
@@ -333,7 +333,7 @@ nesrece_udelezenci_2016$stevilo.poskodovanih <- 1
 
 nesrece_udelezenci_2016 <- nesrece_udelezenci_2016 %>% 
   left_join(obcine.regije1, by="obcina") %>% 
-  select(stevilo.poskodovanih, regija) %>%
+  dplyr::select(stevilo.poskodovanih, regija) %>%
   group_by(regija) %>% 
   summarise(stevilo.poskodovanih=sum(stevilo.poskodovanih))
 
@@ -346,7 +346,7 @@ nesrece_udelezenci_2016 <- nesrece_udelezenci_2016 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_udelezenci_2017 <- nesrece.2017 %>% 
-  select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
+  dplyr::select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
   rename("obcina"="UpravnaEnotaStoritve", "poskodba"="PoskodbaUdelezenca") %>% 
   mutate(poskodba=tolower(poskodba), obcina=str_to_title(obcina))
 
@@ -354,7 +354,7 @@ nesrece_udelezenci_2017$stevilo.poskodovanih <- 1
 
 nesrece_udelezenci_2017 <- nesrece_udelezenci_2017 %>% 
   left_join(obcine.regije1, by="obcina") %>% 
-  select(stevilo.poskodovanih, regija) %>%
+  dplyr::select(stevilo.poskodovanih, regija) %>%
   group_by(regija) %>% 
   summarise(stevilo.poskodovanih=sum(stevilo.poskodovanih))
 
@@ -367,7 +367,7 @@ nesrece_udelezenci_2017 <- nesrece_udelezenci_2017 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_udelezenci_2018 <- nesrece.2018 %>% 
-  select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
+  dplyr::select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
   rename("obcina"="UpravnaEnotaStoritve", "poskodba"="PoskodbaUdelezenca") %>% 
   mutate(poskodba=tolower(poskodba), obcina=str_to_title(obcina))
 
@@ -375,7 +375,7 @@ nesrece_udelezenci_2018$stevilo.poskodovanih <- 1
 
 nesrece_udelezenci_2018 <- nesrece_udelezenci_2018 %>% 
   left_join(obcine.regije1, by="obcina") %>% 
-  select(stevilo.poskodovanih, regija) %>%
+  dplyr::select(stevilo.poskodovanih, regija) %>%
   group_by(regija) %>% 
   summarise(stevilo.poskodovanih=sum(stevilo.poskodovanih))
 
@@ -388,7 +388,7 @@ nesrece_udelezenci_2018 <- nesrece_udelezenci_2018 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_udelezenci_2019 <- nesrece.2019 %>% 
-  select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
+  dplyr::select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
   rename("obcina"="UpravnaEnotaStoritve", "poskodba"="PoskodbaUdelezenca") %>% 
   mutate(poskodba=tolower(poskodba), obcina=str_to_title(obcina))
 
@@ -396,7 +396,7 @@ nesrece_udelezenci_2019$stevilo.poskodovanih <- 1
 
 nesrece_udelezenci_2019 <- nesrece_udelezenci_2019 %>% 
   left_join(obcine.regije1, by="obcina") %>% 
-  select(stevilo.poskodovanih, regija) %>%
+  dplyr::select(stevilo.poskodovanih, regija) %>%
   group_by(regija) %>% 
   summarise(stevilo.poskodovanih=sum(stevilo.poskodovanih))
 
@@ -409,7 +409,7 @@ nesrece_udelezenci_2019 <- nesrece_udelezenci_2019 %>%
 
 #-------------------------------------------------------------------------------
 nesrece_udelezenci_2020 <- nesrece.2020 %>% 
-  select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
+  dplyr::select(UpravnaEnotaStoritve, PoskodbaUdelezenca) %>%
   rename("obcina"="UpravnaEnotaStoritve", "poskodba"="PoskodbaUdelezenca") %>% 
   mutate(poskodba=tolower(poskodba), obcina=str_to_title(obcina))
 
@@ -417,7 +417,7 @@ nesrece_udelezenci_2020$stevilo.poskodovanih <- 1
 
 nesrece_udelezenci_2020 <- nesrece_udelezenci_2020 %>% 
   left_join(obcine.regije1, by="obcina") %>% 
-  select(stevilo.poskodovanih, regija) %>%
+  dplyr::select(stevilo.poskodovanih, regija) %>%
   group_by(regija) %>% 
   summarise(stevilo.poskodovanih=sum(stevilo.poskodovanih))
 
@@ -435,7 +435,7 @@ nesrece_udelezenci_2020 <- nesrece_udelezenci_2020 %>%
 
 vozila2 <- vozila1 %>% 
   left_join(obcine.regije, by="obcina") %>% 
-  select(-1) %>% 
+  dplyr::select(-1) %>% 
   group_by(leto, regija) %>% 
   summarise(stevilo.vozil=sum(stevilo.vozil)) %>% 
   arrange("leto", "regija", "stevilo-vozil")
@@ -468,13 +468,13 @@ nesrece2 <- nesrece1 %>%
 tabela <- prebivalstvo1 %>% 
   left_join(nesrece_udelezenci2, by="regija") %>% 
   filter(leto.x == leto.y) %>% 
-  select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih) %>% 
+  dplyr::select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih) %>% 
   left_join(nesrece2, by="regija") %>% 
   filter(leto.x == leto.y) %>% 
-  select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec) %>% 
+  dplyr::select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec) %>% 
   left_join(vozila2, by="regija") %>% 
   filter(leto.x == leto.y) %>%
-  select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec, stevilo.vozil)
+  dplyr::select(regija, "leto"=leto.x, prebivalci, stevilo.poskodovanih, stevilo.nesrec, stevilo.vozil)
 
 #-------------------------------------------------------------------------------
 # Shranjevanje tabele v datoteko:

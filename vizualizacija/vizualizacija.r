@@ -11,7 +11,7 @@ tabela = read_csv(
     .default = col_guess(),
     regija = col_factor()
   )
-) %>% select(-1)
+) %>% dplyr::select(-1)
 
 ################################################################################
 # Dodajanje novih spremenljivk
@@ -98,12 +98,14 @@ graf.nesrece.vozila <- ggplot(tabela1) +
 
 graf.nesrece.preb.vozila <- ggplot(tabela1 %>% filter(regija %in% c("Osrednjeslovenska", "Jugovzhodna Slovenija", "Posavska"))) + 
   aes(x = st.nesrec.na.1000.vozil, y = st.nesrec.na.10000.preb, color = leto, shape = regija) + 
-  geom_point()
+  geom_point() + 
+  xlab("Nesreče na 1.000 vozil") + ylab("Nesrče na 10.000 prebivalcev") + 
+  ggtitle("Nesreče na vozilo v primerjavi \n z nesrečami na prebivalca treh regij")
 #-------------------------------------------------------------------------------
 
 # Indeks rasti nesreč za Osrednjeslovensko regijo
 
-graf.indeks1 <- ggplot(tabela1 %>% filter(regija == "Osrednjeslovenska") %>% select(leto, indeks.rasti.nesrec)) + 
+graf.indeks1 <- ggplot(tabela1 %>% filter(regija == "Osrednjeslovenska") %>% dplyr::select(leto, indeks.rasti.nesrec)) + 
   aes(x = leto, y = indeks.rasti.nesrec) + 
   geom_line() + 
   xlab("Leto") + ylab("Indeks") + 
@@ -112,7 +114,7 @@ graf.indeks1 <- ggplot(tabela1 %>% filter(regija == "Osrednjeslovenska") %>% sel
 
 # Indeks rasti nesreč za Slovenijo
 
-graf.indeks2 <- ggplot(tabela1 %>% filter(regija == "SLOVENIJA") %>% select(leto, indeks.rasti.nesrec)) + 
+graf.indeks2 <- ggplot(tabela1 %>% filter(regija == "SLOVENIJA") %>% dplyr::select(leto, indeks.rasti.nesrec)) + 
   aes(x = leto, y = indeks.rasti.nesrec) + 
   geom_line() + 
   xlab("Leto") + ylab("Indeks") + 
@@ -145,7 +147,7 @@ graf.nesrece.skupaj <- tabela1 %>%
   geom_bar(
     stat = "identity",
     position = position_fill()
-  )
+  ) + labs(fill="Deleži nesreč po regijah \n za vsa leta")
   
 ################################################################################ 
 # ZEMLJEVIDI
@@ -171,7 +173,7 @@ Slovenija$regija <- gsub('Spodnjeposavska', 'Posavska', Slovenija$regija)
 # Prostorska vizualizacija podatkov o prometnih nesrečah
 ## Zemljevid nesreč po slovenskih statističnih regijah, leto 2020
 
-tabela.za.zemljevid <- filter(tabela1, leto==2020) %>% select(regija, leto, stevilo.nesrec)
+tabela.za.zemljevid <- filter(tabela1, leto==2020) %>% dplyr::select(regija, leto, stevilo.nesrec)
 
 zemljevid.nesrec1 <- ggplot() +
   geom_polygon(data = right_join(tabela.za.zemljevid, Slovenija, by = "regija"),
@@ -191,7 +193,7 @@ zemljevid.nesrec1 <- ggplot() +
 
 ##Zemljevid nesreč po slovenskih statističnih regijah, leto 2007
 
-tabela.za.zemljevid1 <- filter(tabela1, leto==2007) %>% select(regija, leto, st.nesrec.na.10000.preb)
+tabela.za.zemljevid1 <- filter(tabela1, leto==2007) %>% dplyr::select(regija, leto, st.nesrec.na.10000.preb)
 
 zemljevid.nesrec2 <- ggplot() +
   geom_polygon(data = right_join(tabela.za.zemljevid1, Slovenija, by = "regija"),
@@ -210,7 +212,7 @@ zemljevid.nesrec2 <- ggplot() +
 
 ##Zemljevid poškodovanih po slovenskih statističnih regijah, leto 2010
 
-tabela.za.zemljevid2 <- filter(tabela1, leto==2010) %>% select(regija, leto, st.poskodovanih.na.10000.preb)
+tabela.za.zemljevid2 <- filter(tabela1, leto==2010) %>% dplyr::select(regija, leto, st.poskodovanih.na.10000.preb)
 
 zemljevid.poskodovanih <- ggplot() +
   geom_polygon(data = right_join(tabela.za.zemljevid2, Slovenija, by = "regija"),
@@ -230,7 +232,7 @@ zemljevid.poskodovanih <- ggplot() +
 
 ##Zemljevid indeksa prometnih nesreč po slovenskih statističnih regijah, leto 2019
 
-tabela.za.zemljevid3 <- filter(tabela1, leto==2019) %>% select(regija, leto, indeks.rasti.nesrec)
+tabela.za.zemljevid3 <- filter(tabela1, leto==2019) %>% dplyr::select(regija, leto, indeks.rasti.nesrec)
 
 zemljevid.indeksa.nesrec <- ggplot() +
   geom_polygon(data = right_join(tabela.za.zemljevid3, Slovenija, by = "regija"),
