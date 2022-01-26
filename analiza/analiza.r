@@ -1,13 +1,5 @@
 # 4. faza: Napredna analiza podatkov
 
-library(sp)
-library(rgdal)
-library(raster)
-library(rgeos)
-library(tidyverse)
-library(cluster)
-library(ggalt)
-
 source("lib/obrisi.r")
 source("lib/hc.kolena.R")
 source("lib/diagram.obrisi.r")
@@ -75,7 +67,6 @@ table(k$cluster)
 
 k$tot.withinss
 
-library(tmap)
 skupine <- data.frame(regija=tabela2$regija, skupina=factor(k$cluster))
 
 # Skupine za regije:
@@ -149,17 +140,17 @@ skupine2 <- tabela2[, -1] %>%
   kmeans(centers = 3) %>%
   getElement("cluster") %>%
   as.ordered()
+
 skupina.treh <- diagram.skupine(regije.x.y, regije.x.y$regija, skupine2, k)
 
 # Narišemo zemljevid
 
 tabela2$regija <- as.character(tabela2$regija)
-skupine <- data.frame(regija=tabela2$regija, skupina=factor(k$cluster))
 
-map.data <- right_join(skupine, Slovenija, by = c("regija", "NAME_1"))
-zemljevid.napredna.analiza <- ggplot(map.data) + 
-  geom_polygon(aes(x = long, y = lat, group = group, fill = skupina)) +
-  geom_path(aes(x = long, y = lat, group = group), 
-            color = "white", size = 0.1) +
-  labs(fill="Skupine regij", title="Gručenje regij s podobnimi lastnostmi") +
-  scale_fill_brewer(palette="Paired")
+# map.data <- right_join(skupine, Slovenija, by = c("regija", "NAME_1"))
+# zemljevid.napredna.analiza <- ggplot(map.data) + 
+#   geom_polygon(aes(x = long, y = lat, group = group, fill = skupina)) +
+#   geom_path(aes(x = long, y = lat, group = group), 
+#             color = "white", size = 0.1) +
+#   labs(fill="Skupine regij", title="Gručenje regij s podobnimi lastnostmi") +
+#   scale_fill_brewer(palette="Paired")

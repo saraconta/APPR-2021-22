@@ -1,9 +1,6 @@
 # 3. faza: 
 # VIZUALIZACIJA PODATKOV
 
-library(tidyverse)
-library(ggplot2)
-
 tabela = read_csv(
   "podatki/tabela.csv",
   locale = locale(encoding = "Windows-1250"),
@@ -99,7 +96,7 @@ graf.nesrece.vozila <- ggplot(tabela1) +
 graf.nesrece.preb.vozila <- ggplot(tabela1 %>% filter(regija %in% c("Osrednjeslovenska", "Jugovzhodna Slovenija", "Posavska"))) + 
   aes(x = st.nesrec.na.1000.vozil, y = st.nesrec.na.10000.preb, color = leto, shape = regija) + 
   geom_point() + 
-  xlab("Nesreče na 1.000 vozil") + ylab("Nesrče na 10.000 prebivalcev") + 
+  xlab("Nesreče na 1.000 vozil") + ylab("Nesreče na 10.000 prebivalcev") + 
   ggtitle("Nesreče na vozilo v primerjavi \n z nesrečami na prebivalca treh regij")
 #-------------------------------------------------------------------------------
 
@@ -126,14 +123,18 @@ graf.indeks2 <- ggplot(tabela1 %>% filter(regija == "SLOVENIJA") %>% dplyr::sele
   
 graf.kvantili.nesrece <- ggplot(tabela1 %>% mutate(leto = as.character(leto))) + # Dodala mutate, ker leto ni 'character'
   aes(x = leto, y = stevilo.nesrec) + 
-  geom_boxplot()
+  geom_boxplot(outlier.shape=8) + 
+  xlab("Število nesreč") + ylab("Leto") + 
+  ggtitle("Graf kvantilov za število \n nesreč za vsa leta")
 #-------------------------------------------------------------------------------
 
 # Graf kvantilov za število poškodovanih
 
 graf.kvantili.poskodovani <- ggplot(tabela1 %>% mutate(leto = as.character(leto))) + # Dodala mutate, ker leto ni 'character'
   aes(x = leto, y = stevilo.poskodovanih) + 
-  geom_boxplot()
+  geom_boxplot(notch=TRUE) + 
+  xlab("Število poškodovanih") + ylab("Leto") + 
+  ggtitle("Graf kvantilov za število \n poškodovanih za vsa leta")
 #-------------------------------------------------------------------------------
 
 # Graf števila nesreč po letih, barvno ločeno po regijah
@@ -147,16 +148,12 @@ graf.nesrece.skupaj <- tabela1 %>%
   geom_bar(
     stat = "identity",
     position = position_fill()
-  ) + labs(fill="Deleži nesreč po regijah \n za vsa leta")
+  ) + labs(fill="Regija") + 
+  xlab("Leto") + ylab("Število nesreč") + 
+  ggtitle("Delež nesreč po regijah")
   
 ################################################################################ 
 # ZEMLJEVIDI
-
-library(sp)
-library(rgdal)
-library(rgeos)
-library(raster)
-library(tmap)
 #-------------------------------------------------------------------------------
 
 # Uvoz zemljevida

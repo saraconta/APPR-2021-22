@@ -35,9 +35,6 @@ hc.kolena.k = function(k.visina) {
     as.integer()
 }
 
-# izračunamo tabelo s koleni za dendrogram
-r = hc.kolena(dendrogram)
-
 # narišemo diagram višin združevanja
 diagram.kolena = function(k.visina) {
   k.visina %>% ggplot() +

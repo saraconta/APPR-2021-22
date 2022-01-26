@@ -13,8 +13,8 @@ library(sp)
 library(rgdal)
 library(rgeos)
 library(raster)
-
-## test
+library(cluster)
+library(ggalt)
 
 options(gsubfn.engine="R")
 
