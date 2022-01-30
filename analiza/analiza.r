@@ -143,14 +143,38 @@ skupine2 <- tabela2[, -1] %>%
 
 skupina.treh <- diagram.skupine(regije.x.y, regije.x.y$regija, skupine2, k)
 
-# Narišemo zemljevid
 
-tabela2$regija <- as.character(tabela2$regija)
+################################################################################
+# Napovedovanje
+#-------------------------------------------------------------------------------
+# Priprava:
 
-# map.data <- right_join(skupine, Slovenija, by = c("regija", "NAME_1"))
-# zemljevid.napredna.analiza <- ggplot(map.data) + 
-#   geom_polygon(aes(x = long, y = lat, group = group, fill = skupina)) +
-#   geom_path(aes(x = long, y = lat, group = group), 
-#             color = "white", size = 0.1) +
-#   labs(fill="Skupine regij", title="Gručenje regij s podobnimi lastnostmi") +
-#   scale_fill_brewer(palette="Paired")
+lin <- lm(data = tabela, stevilo.nesrec ~ prebivalci)
+g <- ggplot(tabela, aes(x=prebivalci, y=stevilo.nesrec)) + geom_point()
+#-------------------------------------------------------------------------------
+
+# Prileganje z zlepki:
+
+z <- lowess(tabela$prebivalci, tabela$stevilo.nesrec)
+g + geom_line(data=as.data.frame(z), aes(x=x, y=y), color="green")
+#-------------------------------------------------------------------------------
+
+# Model:
+# Iz tega modela lahko delamo tudi napovedi. 
+
+mls <- loess(data=tabela, stevilo.nesrec ~ prebivalci)
+napovedni.model <- g + geom_smooth(method="loess")
+
+# napovedi <- predict(mls, data.frame(prebivalci=seq(1000, 800000, 2000000)))
+
+# g + geom_line(data = data.frame(prebivalci=seq(1000, 800000, 2000000), napovedi = napovedi),
+#               aes(x = prebivalci, y = napovedi), col = "blue")
+#-------------------------------------------------------------------------------
+
+# Kvadratne napake: 
+
+sapply(list(lin, mls), function(x) mean((x$residuals^2)))
+# Vrne nam: 1390918, 1132940
+
+
+

@@ -15,6 +15,8 @@ library(rgeos)
 library(raster)
 library(cluster)
 library(ggalt)
+library(GGally)
+library(dplyr)
 
 options(gsubfn.engine="R")
 
